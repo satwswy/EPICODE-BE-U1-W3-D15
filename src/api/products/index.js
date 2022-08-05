@@ -110,4 +110,22 @@ productsRouter.post("/", async (req, res, next) => {
     }
   })
 
+  productsRouter.get("/:productId/reviews/:commentId", async (req, res, next)=>{
+    try {
+        const product = await ProductsModel.findById(req.params.productId)
+        if (product) {
+            const comment = product.reviews.find(current => req.params.commentId === current._id.toString())
+            if (comment) {
+              res.send(comment)
+            } else {
+              next(createHttpError(404, `Comment with id ${req.params.commentId} not found!`))
+            }
+          } else {
+            next(createHttpError(404, `Product with id ${req.params.productId} not found!`))
+          }
+    } catch (error) {
+        next(error)
+    }
+  })
+
 export default productsRouter
