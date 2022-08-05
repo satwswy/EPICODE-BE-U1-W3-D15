@@ -110,21 +110,49 @@ productsRouter.post("/", async (req, res, next) => {
     }
   })
 
-  productsRouter.get("/:productId/reviews/:commentId", async (req, res, next)=>{
+  productsRouter.get("/:productId/reviews/:reviewId", async (req, res, next)=>{
     try {
         const product = await ProductsModel.findById(req.params.productId)
         if (product) {
-            const comment = product.reviews.find(current => req.params.commentId === current._id.toString())
-            if (comment) {
-              res.send(comment)
+            const review = product.reviews.find(current => req.params.reviewId === current._id.toString())
+            if (review) {
+              res.send(review)
             } else {
-              next(createHttpError(404, `Comment with id ${req.params.commentId} not found!`))
+              next(createHttpError(404, `Comment with id ${req.params.reviewId} not found!`))
             }
           } else {
             next(createHttpError(404, `Product with id ${req.params.productId} not found!`))
           }
     } catch (error) {
         next(error)
+    }
+  })
+
+  productsRouter.put("/:productId/reviews/:reviewId", async (req, res, next) => {
+    try {
+      
+      const product = await ProductsModel.findById(req.params.productId)
+  
+      if (product) {
+      
+  
+        const index = product.reviews.findIndex(current => current._id.toString() === req.params.reviewId)
+  
+        if (index !== -1) {
+       
+          product.reviews[index] = { ...product.reviews[index].toObject(), ...req.body }
+  
+         
+          await product.save()
+          res.send(product)
+        } else {
+          next(createHttpError(404, `Review with id ${req.params.reviewId} not found!`))
+        }
+      } else {
+        next(createHttpError(404, `Product with id ${req.params.productId} not found!`))
+      }
+    } catch (error) {
+      next(error)
     }
   })
 
