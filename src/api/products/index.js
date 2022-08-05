@@ -156,4 +156,22 @@ productsRouter.post("/", async (req, res, next) => {
     }
   })
 
+
+  productsRouter.delete("/:productId/reviews/:reviewId", async (req, res, next) => {
+    try {
+      const updatedProduct = await ProductsModel.findByIdAndUpdate(
+        req.params.productId,
+        { $pull: { reviews: { _id: req.params.reviewId } } }, 
+        { new: true, runValidators: true } 
+      )
+      if (updatedProduct) {
+        res.send(updatedProduct)
+      } else {
+        next(createHttpError(404, `Product with id ${req.params.productId} not found!`))
+      }
+    } catch (error) {
+      next(error)
+    }
+  })
+
 export default productsRouter
