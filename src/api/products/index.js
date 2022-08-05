@@ -77,4 +77,37 @@ productsRouter.post("/", async (req, res, next) => {
     }
   })
 
+  productsRouter.post("/:productId/reviews", async (req,res,next)=>{
+    try {
+      
+      const updatedProduct = await ProductsModel.findByIdAndUpdate(
+        req.params.productId, 
+        { $push: { reviews: req.body } }, 
+        { new: true, runValidators: true } 
+      )
+      if (updatedProduct) {
+        res.send(updatedProduct)
+      } else {
+        next(createHttpError(404, `Product with id ${req.params.productId} not found!`))
+      }
+  
+    } catch (error) {
+      next(error)
+    }
+  })
+  
+  productsRouter.get("/:productId/reviews", async (req,res,next)=>{
+    try {
+      const product = await ProductsModel.findById(req.params.productId)
+      if(product){
+        res.send(product.reviews)
+      }
+      else{
+        next(createHttpError(404, `Product with id ${req.params.productId} not found!`))
+      }
+    } catch (error) {
+      next (error)
+    }
+  })
+
 export default productsRouter
